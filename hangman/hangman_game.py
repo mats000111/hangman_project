@@ -4,10 +4,12 @@ from werkzeug.security import check_password_hash
 import sqlite3
 
 db = sqlite3.connect('../instance/flaskr.sqlite')
-# here a random word is chosen from a large word file.
+
+# word list created from the 3000 most commonly used English words
 with open('most_common_words.txt', 'r') as f:
     word_list = f.read().splitlines()
 
+# difficulty created as per the length of the words. These list could be made into text files to save on execution time.
 easy_dif = [word for word in word_list if len(
     word) <= 5 and " " not in word and str(range(0, 9)) not in word]
 medium_dif = [word for word in word_list if len(word) >= 6 and len(
@@ -45,6 +47,7 @@ while True:  # 2 loops to allow the player to play again
             difficulty = input("Please choose a difficulty: ")
             difficulty = difficulty.lower()
             if difficulty == "1" or difficulty == "easy":
+                # variables are being set to later on be used as inserts into the database.
                 easy = 1
                 medium = 0
                 hard = 0
@@ -82,11 +85,7 @@ while True:  # 2 loops to allow the player to play again
             word = maskpass.askpass(prompt="Please pick a word: ", mask="_")
             word = word.lower()
 
-            # numeric = attempts.isnumeric()  # to check if the attempts are a number
-            # if attempts != attempts.isnumeric():
-            #     print("Please pick a valid number of attempts!")
-            #     continue
-            # turning the attemps into an integer so they can later be substracted
+            # turning the attempts input into an integer
             while True:
                 try:
                     attempts = input("Please choose the amount of attempts: ")
@@ -99,13 +98,12 @@ while True:  # 2 loops to allow the player to play again
         else:
             print("\nPlease pick a valid game_mode!\n")
     guessed_chars = []  # list where all previously guessed character go into.
-    # hidden_word = ["_"] * len(word) # at first hidden words was a list
     hidden_word = "_" * len(word)
 
     print(
         f"\nThe word you have to guess consists of {len(word)} characters.\nYou are allowed {attempts} guesses.\n")
     while attempts > 0:
-        # displays the underscored with a space between them
+        # displays the hidden word as underscores
         print(" ".join(hidden_word))
         guess = input("Pick a letter or guess the word: ")
         guess = guess.lower()
@@ -125,16 +123,11 @@ while True:  # 2 loops to allow the player to play again
             print(
                 f"You have already picked {guess} before. Please pick another character.")
             continue
-        # guessed_chars needs to be appended under the previous if statements, same goes for the attemps since else an attempt would be substracted for an invalid input.
+        # guessed_chars needs to be appended under the previous if statements, same goes for the attempts. Otherwise an attempt would be substracted for an invalid input.
         guessed_chars.append(guess)
         attempts -= 1
-        index = 0  # index is here to pick the correct index in hidden_word and replace the underscore with the guess
+        index = 0  # index to pick the correct index in hidden_word and replace the underscore with the guess
         underscore = 0
-        # at first had a for loop to find the guess in the hidden word. But turning it into a string is more efficient.
-        # for char in word:
-        #     if guess == char:
-        #         hidden_word[index] = guess
-        #     index += 1
         while index < len(word):
             index = word.find(guess, index)
             if index == -1:
@@ -155,6 +148,7 @@ while True:  # 2 loops to allow the player to play again
             print(
                 f"\nYou are out of guesses. The word was: '{word}'.\nBetter luck next time!\n")
 
+    # inserting game into database
     db.execute(
         f'INSERT INTO games_played (user_id, won, lost, easy, medium, hard, multiplayer) VALUES ({user[0]}, {won}, {lost}, {easy}, {medium}, {hard}, {multiplayer})'
     )
@@ -162,7 +156,6 @@ while True:  # 2 loops to allow the player to play again
 
     print("1. Yes")
     print("2. No")
-    # play_again = ""
     while True:
         play_again = input("Would you like to play again? ")
         play_again = play_again.lower()
