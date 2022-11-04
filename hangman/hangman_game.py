@@ -123,7 +123,7 @@ while True:  # 2 loops to allow the player to play again
             print(
                 f"You have already picked {guess} before. Please pick another character.")
             continue
-        # guessed_chars needs to be appended under the previous if statements, same goes for the attempts. Otherwise an attempt would be substracted for an invalid input.
+        # guessed_chars needs to be under the previous if statements, same goes for the attempts. Otherwise an attempt would be substracted for an invalid input.
         guessed_chars.append(guess)
         attempts -= 1
         index = 0  # index to pick the correct index in hidden_word and replace the underscore with the guess
@@ -159,7 +159,6 @@ while True:  # 2 loops to allow the player to play again
     while True:
         play_again = input("Would you like to play again? ")
         play_again = play_again.lower()
-        # play_again = play_again.lower()
         if play_again == "1" or play_again == "yes":
             break
         elif play_again == "2" or play_again == "no":
